@@ -44,7 +44,6 @@ namespace DocLite.Serialization
 
         public virtual T Deserialize<T>(Stream input)
         {
-
             using (var rijndael = new RijndaelManaged())
             {
                 rijndael.Key = _encryptionKey;
@@ -53,7 +52,9 @@ namespace DocLite.Serialization
 
                 using (ICryptoTransform decryptor = rijndael.CreateDecryptor())
                 using (var decryptedStream = new CryptoStream(input, decryptor, CryptoStreamMode.Read))
+                {
                     return _inner.Deserialize<T>(decryptedStream);
+                }
             }
         }
 

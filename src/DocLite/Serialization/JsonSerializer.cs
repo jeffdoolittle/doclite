@@ -1,10 +1,7 @@
 using System;
 using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization.Formatters;
 using System.Text;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace DocLite.Serialization
 {
@@ -13,16 +10,7 @@ namespace DocLite.Serialization
         private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings();
 
         public JsonSerializer()
-            : this(cfg =>
-                {
-                    var contractResolver = new DefaultContractResolver();
-                    contractResolver.DefaultMembersSearchFlags |= BindingFlags.NonPublic;
-                    cfg.TypeNameHandling = TypeNameHandling.All;
-                    cfg.TypeNameAssemblyFormat = FormatterAssemblyStyle.Full;
-                    cfg.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                    cfg.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                    cfg.ContractResolver = contractResolver;
-                })
+            : this(DefaultJsonSerializerSettingsConfigurer.Configure)
         {
         }
 

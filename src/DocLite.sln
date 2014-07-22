@@ -5,14 +5,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{72152B
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocLite", "DocLite\DocLite.csproj", "{F4C71320-9DAD-4A8E-965A-2FEF2592B2F3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{943109A7-7FE3-471D-AADB-52F5CA98CAAC}"
 	ProjectSection(SolutionItems) = preProject
+		..\build.cake = ..\build.cake
+		..\build.cmd = ..\build.cmd
+		DocLite\DocLite.nuspec = DocLite\DocLite.nuspec
 		..\README.md = ..\README.md
+		..\ReleaseNotes.md = ..\ReleaseNotes.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocLite.Tests", "DocLite.Tests\DocLite.Tests.csproj", "{94D22C12-D577-422E-BE99-0ED68F73FEA1}"

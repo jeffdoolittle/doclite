@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 
-namespace DocLite.Tests
+namespace DocLite
 {
     public static class AssemblyPath
     {

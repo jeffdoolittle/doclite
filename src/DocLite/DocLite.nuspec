@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>DocLite</id>
+    <version>$version$</version>
+    <authors>Jeff Doolittle</authors>
+    <owners>Jeff Doolittle</owners>
+    <licenseUrl>https://github.com/jeffdoolittle/doclite/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/jeffdoolittle/doclite</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>simple document database</description>
+    <copyright>Copyright Jeff Doolittle 2014</copyright>
+    <tags>simple document database</tags>
+  </metadata>
+  <files>
+    <file src="DocLite.dll" />
+    <file src="LICENSE" />
+  </files>
+</package>

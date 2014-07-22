@@ -2,27 +2,60 @@
 using System.Collections.Generic;
 using System.Linq;
 using DocLite.Serialization;
-using Microsoft.Isam.Esent.Collections.Generic;
+using DocLite.Store;
 
 namespace DocLite
 {
+    /// <summary>
+    /// A Session enables the retrieval, addition, and removal of documents from a backing store (persistent, or in memory)
+    /// </summary>
     public interface ISession : IDisposable
     {
+        /// <summary>
+        /// Gets a document by Type and Id
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="id"></param>
+        /// <returns></returns>
         T Get<T>(object id = null);
+
+        /// <summary>
+        /// Gets all documents for a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         IEnumerable<T> GetAll<T>();
+
+        /// <summary>
+        /// Adds a document to the session
+        /// </summary>
+        /// <param name="document"></param>
         void Add(object document);
+        
+        /// <summary>
+        /// Removes a document from the session
+        /// </summary>
+        /// <param name="document"></param>
         void Remove(object document);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class Session : ISession
     {
         private const string IdPropertyName = "Id";
 
-        private readonly PersistentDictionary<string, string> _store;
+        private readonly IStore<string, string> _store;
         private readonly IDocumentSerializer _documentSerializer;
         private readonly IdHelper _idHelper;
 
-        public Session(PersistentDictionary<string, string> store, IDocumentSerializer documentSerializer)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="store"></param>
+        /// <param name="documentSerializer"></param>
+        public Session(IStore<string, string> store, IDocumentSerializer documentSerializer)
         {
             _store = store;
             _documentSerializer = documentSerializer;
@@ -30,6 +63,12 @@ namespace DocLite
             _idHelper.Initialize(IdPropertyName);
         }
 
+        /// <summary>
+        /// Gets a document by Type and Id from the persistent store
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public T Get<T>(object id = null)
         {
             var key = GetDocumentKey(typeof(T), id);
@@ -38,6 +77,11 @@ namespace DocLite
             return _documentSerializer.Deserialize<T>(value);
         }
 
+        /// <summary>
+        /// Gets all documents for a given Type from the persistent store
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public IEnumerable<T> GetAll<T>()
         {
             var key = GetDocumentName(typeof(T));
@@ -46,6 +90,10 @@ namespace DocLite
                 .Select(x => _documentSerializer.Deserialize<T>(x.Value));
         }
 
+        /// <summary>
+        /// Adds a document to the persistent store
+        /// </summary>
+        /// <param name="document"></param>
         public void Add(object document)
         {
             _idHelper.EnsureAllGuidsIdsInObjectGraphAreNotEmpty(document);
@@ -53,12 +101,19 @@ namespace DocLite
             _store[key] = _documentSerializer.Serialize(document);
         }
 
+        /// <summary>
+        /// Removes a document from the persistent store
+        /// </summary>
+        /// <param name="document"></param>
         public void Remove(object document)
         {
             var key = GetDocumentKey(document);
             _store.Remove(key);
         }
 
+        /// <summary>
+        /// Flushes changes to disk
+        /// </summary>
         public void Dispose()
         {
             _store.Flush();
