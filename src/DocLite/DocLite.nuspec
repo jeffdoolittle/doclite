@@ -13,7 +13,7 @@
     <tags>simple document database</tags>
   </metadata>
   <files>
-    <file src="DocLite.dll" />
+    <file src="DocLite.dll" target="lib" />
     <file src="LICENSE" />
   </files>
 </package>
