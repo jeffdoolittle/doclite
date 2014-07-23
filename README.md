@@ -7,11 +7,11 @@ a simple esent backed document store for .net
 Example:
 
 ```
-	var store = new SessionFactory();
-	store.StoreAt(Location);
-	store.Compress();
-	store.EncryptWithKey("ABCDEFGHIJKLMNOP");
-	store.Initialize();
+var store = new SessionFactory(
+        cfg => cfg
+            .StoreAt("/path")
+            .Compress()
+            .EncryptWithKey("ABCDEFGHIJKLMNOP"));
 
 	using (var session = store.OpenSession())
 	{
@@ -23,7 +23,10 @@ Example:
 			});	
 	}
 
+	using (var session = store.OpenSession())
+	{
+        var document = session.Get<MyDocument>(4);
+    }
+
 	store.Dispose();
-
-
 ```

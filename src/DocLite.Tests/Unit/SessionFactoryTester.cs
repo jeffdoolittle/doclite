@@ -1,10 +1,9 @@
 using System;
-using System.IO;
 using System.Linq;
 using Microsoft.Isam.Esent.Collections.Generic;
 using Xunit;
 
-namespace DocLite.Tests
+namespace DocLite.Tests.Unit
 {
     public interface ISessionFactoryFixture
     {

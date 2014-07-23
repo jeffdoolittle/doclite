@@ -20,6 +20,14 @@ namespace DocLite
         T Get<T>(object id = null);
 
         /// <summary>
+        /// Gets documents matching Type and Ids
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        IEnumerable<T> Get<T>(object[] ids);
+            
+        /// <summary>
         /// Gets all documents for a Type
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -37,6 +45,29 @@ namespace DocLite
         /// </summary>
         /// <param name="document"></param>
         void Remove(object document);
+
+        /// <summary>
+        /// Returns the first document of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T First<T>();
+
+        /// <summary>
+        /// Returns the last document of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T Last<T>();
+
+        /// <summary>
+        /// Returns a paged enumerable for documents of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <returns></returns>
+        IEnumerable<T> Get<T>(int skip, int take);
     }
 
     /// <summary>
@@ -51,7 +82,7 @@ namespace DocLite
         private readonly IdHelper _idHelper;
 
         /// <summary>
-        /// 
+        /// Constructor
         /// </summary>
         /// <param name="store"></param>
         /// <param name="documentSerializer"></param>
@@ -72,9 +103,19 @@ namespace DocLite
         public T Get<T>(object id = null)
         {
             var key = GetDocumentKey(typeof(T), id);
-            if (!_store.ContainsKey(key)) return default(T);
-            var value = _store[key];
-            return _documentSerializer.Deserialize<T>(value);
+            return Get<T>(key);
+        }
+
+        /// <summary>
+        /// Gets documents matching Type and Ids
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        public IEnumerable<T> Get<T>(object[] ids)
+        {
+            var keys = ids.Select(x => GetDocumentKey(typeof (T), x));
+            return Get<T>(keys);
         }
 
         /// <summary>
@@ -87,7 +128,7 @@ namespace DocLite
             var key = GetDocumentName(typeof(T));
             return _store
                 .Where(x => x.Key.StartsWith(key))
-                .Select(x => _documentSerializer.Deserialize<T>(x.Value));
+                .Select(x => Deserialize<T>(x.Value));
         }
 
         /// <summary>
@@ -98,7 +139,7 @@ namespace DocLite
         {
             _idHelper.EnsureAllGuidsIdsInObjectGraphAreNotEmpty(document);
             var key = GetDocumentKey(document);
-            _store[key] = _documentSerializer.Serialize(document);
+            _store[key] = Serialize(document);
         }
 
         /// <summary>
@@ -112,11 +153,81 @@ namespace DocLite
         }
 
         /// <summary>
+        /// Returns the first document of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T First<T>()
+        {
+            var name = GetDocumentName(typeof (T));
+            var key = _store.Keys.FirstOrDefault(x => x.StartsWith(name));
+            return Get<T>(key);
+        }
+
+        /// <summary>
+        /// Returns the last document of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T Last<T>()
+        {
+            var name = GetDocumentName(typeof(T));
+            var key = _store.Keys.LastOrDefault(x => x.StartsWith(name));
+            return Get<T>(key);
+        }
+
+        /// <summary>
+        /// Returns a paged enumerable for documents of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <returns></returns>
+        public IEnumerable<T> Get<T>(int skip, int take)
+        {
+            if (_store.Count == 0)
+            {
+                yield break;
+            }
+
+            for (int i = 0; i < take; i++)
+            {
+                var index = skip + i;
+                var key = _store[index];
+                yield return Get<T>(key);
+            }
+        }
+
+        /// <summary>
         /// Flushes changes to disk
         /// </summary>
         public void Dispose()
         {
             _store.Flush();
+        }
+
+        private T Get<T>(string key)
+        {
+            if (!_store.ContainsKey(key)) return default(T);
+            var value = _store[key];
+            return Deserialize<T>(value);
+        }
+
+        private IEnumerable<T> Get<T>(IEnumerable<string> keys)
+        {
+            var list = keys.ToList();
+            return _store.Where(x => list.Contains(x.Key))
+                         .Select(x => Deserialize<T>(x.Value));
+        }
+
+        private string Serialize<T>(T document)
+        {
+            return _documentSerializer.Serialize(document);
+        }
+
+        private T Deserialize<T>(string value)
+        {
+            return _documentSerializer.Deserialize<T>(value);
         }
 
         private string GetDocumentName(Type type)
@@ -134,7 +245,35 @@ namespace DocLite
         {
             var documentName = GetDocumentName(type);
 
-            return id == null ? documentName : string.Format("{0}-{1}", documentName, id);
+            var stringId = GetStringId(id);
+
+            return stringId == null ? documentName : string.Format("{0}-{1}", documentName, stringId);
+        }
+
+        private string GetStringId(object id)
+        {
+            if (id is long)
+            {
+                return id.ToString().PadLeft(19, '0');
+            }
+            if (id is int)
+            {
+                return id.ToString().PadLeft(10, '0');
+            }
+            if (id is short)
+            {
+                return id.ToString().PadLeft(5, '0');
+            }
+            if (id is byte)
+            {
+                return id.ToString().PadLeft(3, '0');
+            }
+            if (id == null)
+            {
+                return null;
+            }
+
+            return id.ToString();
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DocLite.Store
 {
-    public interface IStore<TKey, TValue> : 
+    public interface IStore<TKey, TValue> :
         IDisposable,
         IEnumerable<KeyValuePair<TKey, TValue>>
         where TKey : IComparable<TKey>
@@ -12,10 +12,12 @@ namespace DocLite.Store
         bool ContainsKey(TKey key);
         void Flush();
 
-        TValue this[TKey index]
-        {
-            get;
-            set;
-        }
+        TKey this[int index] { get; }
+
+        TValue this[TKey key] { get; set; }
+
+        ICollection<TKey> Keys { get; }
+
+        int Count { get; }
     }
 }

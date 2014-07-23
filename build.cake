@@ -23,18 +23,18 @@ var binDir = buildResultDir + "/bin";
 //////////////////////////////////////////////////////////////////////////
 
 Task("Clean")
-    .Does(() =>
+	.Does(() =>
 {
 	CleanDirectories(new DirectoryPath[] {
 		buildResultDir, binDir, testResultsDir, nugetRoot});    
 });
 
 Task("Restore-NuGet-Packages")
-    .IsDependentOn("Clean")
-    .Does(context =>
+	.IsDependentOn("Clean")
+	.Does(context =>
 {
-    // Restore NuGet packages.
-    NuGetRestore("./src/DocLite.sln");    
+	// Restore NuGet packages.
+	NuGetRestore("./src/DocLite.sln");    
 });
 
 Task("Patch-Assembly-Info")
@@ -53,10 +53,10 @@ Task("Patch-Assembly-Info")
 });
 
 Task("Build")
-    .IsDependentOn("Patch-Assembly-Info")
-    .Does(() =>
+	.IsDependentOn("Patch-Assembly-Info")
+	.Does(() =>
 {
-    MSBuild("./src/DocLite.sln", s => 
+	MSBuild("./src/DocLite.sln", s => 
 		{ 
 			s.Configuration = configuration;
 			s.ToolVersion = MSBuildToolVersion.NET40;
@@ -64,10 +64,10 @@ Task("Build")
 });
 
 Task("Run-Unit-Tests")
-    .IsDependentOn("Build")
-    .Does(() =>
+	.IsDependentOn("Build")
+	.Does(() =>
 {
-    XUnit("./src/**/bin/" + configuration + "/*.Tests.dll", new XUnitSettings {
+	XUnit("./src/**/bin/" + configuration + "/*.Tests.dll", new XUnitSettings {
 		OutputDirectory = testResultsDir,
 		XmlReport = true,
 		HtmlReport = true
@@ -79,7 +79,7 @@ Task("Copy-Files")
 	.Does(() =>
 {
 	CopyFileToDirectory(buildDir + "/DocLite.dll", binDir);
-    CopyFiles(new FilePath[] { "LICENSE", "README.md", "ReleaseNotes.md" }, binDir);
+	CopyFiles(new FilePath[] { "LICENSE", "README.md", "ReleaseNotes.md" }, binDir);
 });
 
 Task("ILMerge")
@@ -88,7 +88,7 @@ Task("ILMerge")
 {
 	var outputFile = binDir + "/DocLite.dll";
 
-    var sourcePath = "./src/DocLite/bin/" + configuration;    
+	var sourcePath = "./src/DocLite/bin/" + configuration;    
 	var primaryAssembly = new FilePath(sourcePath + "/DocLite.dll");
 	var assemblyPaths = new List<FilePath>();
 	assemblyPaths.Add(new FilePath(sourcePath + "/Esent.Collections.dll"));
@@ -105,10 +105,10 @@ Task("Create-NuGet-Package")
 {
 	NuGetPack("./src/DocLite/DocLite.nuspec", new NuGetPackSettings {
 		Version = version,
-        BasePath = binDir,
-        OutputDirectory = nugetRoot,
-        Symbols = false,
-        NoPackageAnalysis = true
+		BasePath = binDir,
+		OutputDirectory = nugetRoot,
+		Symbols = false,
+		NoPackageAnalysis = true
 	});
 });
 

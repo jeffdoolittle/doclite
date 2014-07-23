@@ -6,7 +6,7 @@
 using System.Reflection;
 
 [assembly: AssemblyProduct("DocLite")]
-[assembly: AssemblyVersion("0.0.1.1")]
-[assembly: AssemblyFileVersion("0.0.1.1")]
-[assembly: AssemblyInformationalVersion("0.0.1.1")]
+[assembly: AssemblyVersion("0.0.2")]
+[assembly: AssemblyFileVersion("0.0.2")]
+[assembly: AssemblyInformationalVersion("0.0.2")]
 [assembly: AssemblyCopyright("Copyright (c) Jeff Doolittle 2014")]

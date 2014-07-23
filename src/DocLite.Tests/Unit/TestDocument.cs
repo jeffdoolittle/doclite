@@ -1,6 +1,6 @@
 using System;
 
-namespace DocLite.Tests
+namespace DocLite.Tests.Unit
 {
     public class TestDocument
     {

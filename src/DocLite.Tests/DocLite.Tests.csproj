@@ -51,13 +51,20 @@
     <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
     </Reference>
+    <Reference Include="xunit.extensions">
+      <HintPath>..\packages\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="SessionFactoryTester.cs" />
-    <Compile Include="TestDocument.cs" />
+    <Compile Include="Performance\SessionFactoryTester.cs" />
+    <Compile Include="Unit\EmptySessionTester.cs" />
+    <Compile Include="Unit\SequenceTests.cs" />
+    <Compile Include="Unit\SessionFactoryTester.cs" />
+    <Compile Include="Unit\SessionTester.cs" />
+    <Compile Include="Unit\TestDocument.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
