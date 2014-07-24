@@ -58,6 +58,7 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Performance\SessionFactoryTester.cs" />
+    <Compile Include="Unit\AutoIncrementingNumericIdsTester.cs" />
     <Compile Include="Unit\EmptySessionTester.cs" />
     <Compile Include="Unit\GuidSequenceTester.cs" />
     <Compile Include="Unit\SequenceTests.cs" />

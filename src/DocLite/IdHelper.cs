@@ -52,6 +52,11 @@ namespace DocLite
             }
         }
 
+        public void AutoIncrementIntegerIds(object document)
+        {
+            
+        }
+
         public object GetId(object target)
         {
             GuardInitialized();
@@ -61,6 +66,30 @@ namespace DocLite
                                                           BindingFlags.Instance);
             if (descriptor == null) return null;
             return descriptor.GetValue(target, new object[0]);
+        }
+
+        public Type IdType(object target)
+        {
+            var descriptor = target.GetType().GetProperty(_idPropertyName,
+                                              BindingFlags.Public | BindingFlags.NonPublic |
+                                              BindingFlags.Instance);
+
+            if (descriptor == null)
+            {
+                return null;
+            }
+
+            return descriptor.PropertyType;
+        }
+
+        public void SetId(object target, object id)
+        {
+            GuardInitialized();
+
+            var descriptor = target.GetType().GetProperty(_idPropertyName,
+                                                          BindingFlags.Public | BindingFlags.NonPublic |
+                                                          BindingFlags.Instance);
+            descriptor.SetValue(target, id, new object[0]);
         }
 
         private static class NativeMethods

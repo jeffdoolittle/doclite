@@ -100,5 +100,12 @@ namespace DocLite
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         bool Any<T>();
+
+        /// <summary>
+        /// Gets the number of elements contained in the <see cref="ISession"/> for the specified Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        int Count<T>();
     }
 }

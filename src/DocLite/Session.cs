@@ -50,7 +50,7 @@ namespace DocLite
         /// <returns></returns>
         public IEnumerable<T> Get<T>(object[] ids)
         {
-            var keys = ids.Select(x => GetDocumentKey(typeof (T), x));
+            var keys = ids.Select(x => GetDocumentKey(typeof(T), x));
             return Get<T>(keys);
         }
 
@@ -98,7 +98,7 @@ namespace DocLite
         /// <param name="document"></param>
         public void Add(object document)
         {
-            _idHelper.EnsureAllGuidsIdsInObjectGraphAreNotEmpty(document);
+            PerformIdGeneration(document);
             var key = GetDocumentKey(document);
             _store[key] = Serialize(document);
         }
@@ -120,7 +120,7 @@ namespace DocLite
         /// <returns></returns>
         public T First<T>()
         {
-            var name = GetDocumentName(typeof (T));
+            var name = GetDocumentName(typeof(T));
             var key = _store.Keys.First(x => x.StartsWith(name));
             return Get<T>(key);
         }
@@ -194,6 +194,17 @@ namespace DocLite
         {
             var name = GetDocumentName(typeof(T));
             return _store.Keys.Any(x => x.StartsWith(name));
+        }
+
+        /// <summary>
+        /// Gets the number of elements contained in the <see cref="Session"/> for the specified Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public int Count<T>()
+        {
+            var name = GetDocumentName(typeof(T));
+            return _store.Keys.Count(x => x.StartsWith(name));
         }
 
         /// <summary>
@@ -272,6 +283,35 @@ namespace DocLite
             }
 
             return id.ToString();
+        }
+
+        private void PerformIdGeneration(object document)
+        {
+            _idHelper.EnsureAllGuidsIdsInObjectGraphAreNotEmpty(document);
+
+            if (_idHelper.IdType(document) == typeof (int)
+                && (int)_idHelper.GetId(document) == default(int))
+            {
+                var name = GetDocumentName(document.GetType());
+                var key = _store.Keys.LastOrDefault(x => x.StartsWith(name));
+
+                int nextId = 1;
+
+                if (key != null)
+                {
+                    var parts = key.Split('-');
+                    var idString = parts[1];
+
+                    int id;
+
+                    if (int.TryParse(idString, out id))
+                    {
+                        nextId = id + 1;
+                    }
+                }
+
+                _idHelper.SetId(document, nextId);
+            }
         }
     }
 }
