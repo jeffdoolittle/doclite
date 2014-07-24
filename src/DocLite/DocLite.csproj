@@ -69,9 +69,6 @@
     <Compile Include="Serialization\SerializationExtensions.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="SessionFactory.cs" />
-    <Compile Include="Store\InMemoryStoreAdapter.cs" />
-    <Compile Include="Store\IStore.cs" />
-    <Compile Include="Store\PersistentStoreAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

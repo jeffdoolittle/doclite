@@ -3,7 +3,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using DocLite.Serialization;
-using DocLite.Store;
 using Microsoft.Isam.Esent.Collections.Generic;
 
 namespace DocLite
@@ -13,9 +12,8 @@ namespace DocLite
     /// </summary>
     public class SessionFactory : ISessionFactory
     {
-        private IStore<string, string> _store;
+        private PersistentDictionary<string, string> _store;
         private string _location = "data";
-        private bool _inMemory;
         private IDocumentSerializer _documentSerializer;
         private bool _shouldCompress;
         private byte[] _encryptionKey;
@@ -32,38 +30,19 @@ namespace DocLite
                 configure(configuration);
             }
 
-            Configure();
-        }
-
-        private void Configure()
-        {
-            if (_inMemory)
-            {
-                ConfigureInMemoryStore();
-                ConfigureInMemorySerializer();
-            }
-            else
-            {
-                ConfigurePersistentStore();
-                ConfigurePersistentSerializer();
-            }
-        }
-
-        private void ConfigureInMemoryStore()
-        {
-            _store = new InMemoryStoreAdapter<string, string>();
+            ConfigurePersistentStore();
+            ConfigurePersistentSerializer();
         }
 
         private void ConfigurePersistentStore()
         {
-            var store = new PersistentDictionary<string, string>(_location);
-            _store = new PersistentStoreAdapter<string, string>(store);
+            _store = new PersistentDictionary<string, string>(_location);
         }
 
         private void ConfigureInMemorySerializer()
         {
             var serializer = new JsonSerializer();
-           _documentSerializer = new JsonDocumentSerializer(serializer);
+            _documentSerializer = new JsonDocumentSerializer(serializer);
         }
 
         private void ConfigurePersistentSerializer()
@@ -120,14 +99,6 @@ namespace DocLite
             {
                 _factory = factory;
                 _factory._location = Path.Combine(ExecutingAssemblyPath, "data");
-            }
-
-            /// <summary>
-            /// Configures the <see cref="SessionFactory"/> to store documents in memory
-            /// </summary>
-            public void InMemory()
-            {
-                _factory._inMemory = true;
             }
 
             /// <summary>
