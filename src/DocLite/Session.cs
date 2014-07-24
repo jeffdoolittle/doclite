@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DocLite.Serialization;
-using DocLite.Store;
+using Microsoft.Isam.Esent.Collections.Generic;
 
 namespace DocLite
 {
@@ -13,7 +13,7 @@ namespace DocLite
     {
         private const string IdPropertyName = "Id";
 
-        private readonly IStore<string, string> _store;
+        private readonly PersistentDictionary<string, string> _store;
         private readonly IDocumentSerializer _documentSerializer;
         private readonly IdHelper _idHelper;
 
@@ -22,7 +22,7 @@ namespace DocLite
         /// </summary>
         /// <param name="store"></param>
         /// <param name="documentSerializer"></param>
-        internal Session(IStore<string, string> store, IDocumentSerializer documentSerializer)
+        internal Session(PersistentDictionary<string, string> store, IDocumentSerializer documentSerializer)
         {
             _store = store;
             _documentSerializer = documentSerializer;
@@ -36,7 +36,7 @@ namespace DocLite
         /// <typeparam name="T"></typeparam>
         /// <param name="id"></param>
         /// <returns></returns>
-        public T Get<T>(object id = null)
+        public T Get<T>(object id)
         {
             var key = GetDocumentKey(typeof(T), id);
             return Get<T>(key);
@@ -52,6 +52,31 @@ namespace DocLite
         {
             var keys = ids.Select(x => GetDocumentKey(typeof (T), x));
             return Get<T>(keys);
+        }
+
+        /// <summary>
+        /// Returns a paged enumerable for documents of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <returns></returns>
+        public IEnumerable<T> Get<T>(int skip, int take)
+        {
+            if (_store.Count == 0)
+            {
+                yield break;
+            }
+
+            var keys = _store
+                .Skip(skip)
+                .Take(take)
+                .Select(x => x.Key);
+
+            foreach (var key in keys)
+            {
+                yield return Get<T>(key);
+            }
         }
 
         /// <summary>
@@ -96,7 +121,7 @@ namespace DocLite
         public T First<T>()
         {
             var name = GetDocumentName(typeof (T));
-            var key = _store.Keys.FirstOrDefault(x => x.StartsWith(name));
+            var key = _store.Keys.First(x => x.StartsWith(name));
             return Get<T>(key);
         }
 
@@ -108,30 +133,67 @@ namespace DocLite
         public T Last<T>()
         {
             var name = GetDocumentName(typeof(T));
+            var key = _store.Keys.Last(x => x.StartsWith(name));
+            return Get<T>(key);
+        }
+
+        /// <summary>
+        /// Returns a single document of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T Single<T>()
+        {
+            var name = GetDocumentName(typeof(T));
+            var key = _store.Keys.Single(x => x.StartsWith(name));
+            return Get<T>(key);
+        }
+
+        /// <summary>
+        /// Returns the first document of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T FirstOrDefault<T>()
+        {
+            var name = GetDocumentName(typeof(T));
+            var key = _store.Keys.FirstOrDefault(x => x.StartsWith(name));
+            return Get<T>(key);
+        }
+
+        /// <summary>
+        /// Returns the last document of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T LastOrDefault<T>()
+        {
+            var name = GetDocumentName(typeof(T));
             var key = _store.Keys.LastOrDefault(x => x.StartsWith(name));
             return Get<T>(key);
         }
 
         /// <summary>
-        /// Returns a paged enumerable for documents of a Type
+        /// Returns a single document of a Type
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="skip"></param>
-        /// <param name="take"></param>
         /// <returns></returns>
-        public IEnumerable<T> Get<T>(int skip, int take)
+        public T SingleOrDefault<T>()
         {
-            if (_store.Count == 0)
-            {
-                yield break;
-            }
+            var name = GetDocumentName(typeof(T));
+            var key = _store.Keys.SingleOrDefault(x => x.StartsWith(name));
+            return Get<T>(key);
+        }
 
-            for (int i = 0; i < take; i++)
-            {
-                var index = skip + i;
-                var key = _store[index];
-                yield return Get<T>(key);
-            }
+        /// <summary>
+        /// Returns true if documents exist of the specified Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public bool Any<T>()
+        {
+            var name = GetDocumentName(typeof(T));
+            return _store.Keys.Any(x => x.StartsWith(name));
         }
 
         /// <summary>
@@ -166,11 +228,6 @@ namespace DocLite
             return _documentSerializer.Deserialize<T>(value);
         }
 
-        private string GetDocumentName(Type type)
-        {
-            return type.Name;
-        }
-
         private string GetDocumentKey(object document)
         {
             var id = _idHelper.GetId(document);
@@ -184,6 +241,11 @@ namespace DocLite
             var stringId = GetStringId(id);
 
             return stringId == null ? documentName : string.Format("{0}-{1}", documentName, stringId);
+        }
+
+        private string GetDocumentName(Type type)
+        {
+            return type.Name;
         }
 
         private string GetStringId(object id)

@@ -58,6 +58,7 @@ namespace DocLite.Tests.Unit
         public void then_the_last_document_can_be_retrieved()
         {
             var last = _session.Last<TestDocument>();
+
             Assert.Equal(SessionTesterFixture.DocumentCount, last.Id);
         }
 
@@ -91,6 +92,18 @@ namespace DocLite.Tests.Unit
         }
 
         [Fact]
+        public void then_can_check_for_existence_of_any_documents_of_a_given_type()
+        {
+            Assert.True(_session.Any<TestDocument>());
+        }
+
+        [Fact]
+        public void then_can_check_for_existence_for_no_documents_of_a_given_type()
+        {
+            Assert.False(_session.Any<DateTime>());
+        }
+
+        [Fact]
         public void then_documents_can_be_retrieved_from_the_end_of_the_collection_with_skip_take()
         {
             var docCount = SessionTesterFixture.DocumentCount;
@@ -101,20 +114,6 @@ namespace DocLite.Tests.Unit
             Assert.Equal(10, matches.Count);
             Assert.Equal(docCount - 9, matches.First().Id);
             Assert.Equal(docCount, matches.Last().Id);
-        }
-
-        [Fact]
-        public void then_an_exception_is_thrown_when_skip_take_exceeds_the_collection_size()
-        {
-            var docCount = SessionTesterFixture.DocumentCount;
-
-            Assert.Throws<ArgumentOutOfRangeException>(
-                () =>
-                    {
-                        var matches = _session
-                            .Get<TestDocument>(docCount - 10, 11)
-                            .ToList();
-                    });
         }
 
         public void Dispose()

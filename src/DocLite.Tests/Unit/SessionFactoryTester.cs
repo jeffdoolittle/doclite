@@ -9,23 +9,6 @@ namespace DocLite.Tests.Unit
         ISessionFactory SessionFactory { get; }
     }
 
-    public class InMemorySessionFactoryFixture : IDisposable, ISessionFactoryFixture
-    {
-        public InMemorySessionFactoryFixture()
-        {
-            var store = new SessionFactory(cfg => cfg.InMemory());
-
-            SessionFactory = store;
-        }
-
-        public ISessionFactory SessionFactory { get; private set; }
-
-        public void Dispose()
-        {
-            SessionFactory.Dispose();
-        }
-    }
-
     public class SessionFactoryFixture : IDisposable, ISessionFactoryFixture
     {
         private readonly SessionFactory _factory;
@@ -48,11 +31,11 @@ namespace DocLite.Tests.Unit
         }
     }
 
-    public abstract class SessionFactoryTester<T> : IUseFixture<T> where T : ISessionFactoryFixture, new()
+    public class when_storing_documents : IUseFixture<SessionFactoryFixture>
     {
         private ISessionFactoryFixture _fixture;
 
-        public void SetFixture(T fixture)
+        public void SetFixture(SessionFactoryFixture fixture)
         {
             _fixture = fixture;
         }
@@ -216,13 +199,5 @@ namespace DocLite.Tests.Unit
                 Assert.Equal(1, matches.Count());
             }
         }
-    }
-
-    public class when_storing_in_memory_documents : SessionFactoryTester<InMemorySessionFactoryFixture>
-    {
-    }
-
-    public class when_storing_persistent_documents : SessionFactoryTester<SessionFactoryFixture>
-    {
     }
 }

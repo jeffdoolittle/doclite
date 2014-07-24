@@ -16,16 +16,23 @@ namespace DocLite.Tests.Unit
         }
 
         [Fact]
-        public void fetching_first_returns_null()
+        public void fetching_first_or_default_returns_null()
         {
-            var match = _session.First<FakeDoc>();
+            var match = _session.FirstOrDefault<FakeDoc>();
             Assert.Null(match);
         }
 
         [Fact]
-        public void fetching_last_returns_null()
+        public void fetching_last_or_default_returns_null()
         {
-            var match = _session.First<FakeDoc>();
+            var match = _session.LastOrDefault<FakeDoc>();
+            Assert.Null(match);
+        }
+
+        [Fact]
+        public void fetching_single_or_default_returns_null()
+        {
+            var match = _session.SingleOrDefault<FakeDoc>();
             Assert.Null(match);
         }
 

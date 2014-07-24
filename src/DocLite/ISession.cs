@@ -23,7 +23,16 @@ namespace DocLite
         /// <param name="ids"></param>
         /// <returns></returns>
         IEnumerable<T> Get<T>(object[] ids);
-            
+
+        /// <summary>
+        /// Returns a paged enumerable for documents of a Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <returns></returns>
+        IEnumerable<T> Get<T>(int skip, int take);
+        
         /// <summary>
         /// Gets all documents for a Type
         /// </summary>
@@ -58,12 +67,38 @@ namespace DocLite
         T Last<T>();
 
         /// <summary>
-        /// Returns a paged enumerable for documents of a Type
+        /// Returns a single document of a Type
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="skip"></param>
-        /// <param name="take"></param>
         /// <returns></returns>
-        IEnumerable<T> Get<T>(int skip, int take);
+        T Single<T>();
+
+        /// <summary>
+        /// Returns the first document of a Type, null if none found
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T FirstOrDefault<T>();
+
+        /// <summary>
+        /// Returns the last document of a Type, null if none found
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T LastOrDefault<T>();
+
+        /// <summary>
+        /// Returns a single document of a Type, null if none found
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T SingleOrDefault<T>();
+
+        /// <summary>
+        /// Returns true if documents exist of the specified Type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        bool Any<T>();
     }
 }
