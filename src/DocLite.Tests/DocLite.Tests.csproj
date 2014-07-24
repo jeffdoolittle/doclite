@@ -61,6 +61,7 @@
     </Compile>
     <Compile Include="Performance\SessionFactoryTester.cs" />
     <Compile Include="Unit\EmptySessionTester.cs" />
+    <Compile Include="Unit\GuidSequenceTester.cs" />
     <Compile Include="Unit\SequenceTests.cs" />
     <Compile Include="Unit\SessionFactoryTester.cs" />
     <Compile Include="Unit\SessionTester.cs" />
