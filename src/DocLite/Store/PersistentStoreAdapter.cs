@@ -6,7 +6,7 @@ using Microsoft.Isam.Esent.Collections.Generic;
 
 namespace DocLite.Store
 {
-    public class PersistentStoreAdapter<TKey, TValue> : IStore<TKey, TValue>
+    internal class PersistentStoreAdapter<TKey, TValue> : IStore<TKey, TValue>
         where TKey : IComparable<TKey>
     {
         private readonly PersistentDictionary<TKey, TValue> _dictionary;

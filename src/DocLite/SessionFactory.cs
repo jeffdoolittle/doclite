@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using DocLite.Serialization;
 using DocLite.Store;
@@ -7,18 +8,6 @@ using Microsoft.Isam.Esent.Collections.Generic;
 
 namespace DocLite
 {
-    /// <summary>
-    /// A Session Factory acts as the factory for a doclite <see cref="ISession"/>
-    /// </summary>
-    public interface ISessionFactory : IDisposable
-    {
-        /// <summary>
-        /// Opens a new <see cref="ISession"/>
-        /// </summary>
-        /// <returns>A new <see cref="ISession"/></returns>
-        ISession OpenSession();
-    }
-
     /// <summary>
     /// The Session Factory provides configuration options and acts as the factory for a doclite <see cref="ISession"/>
     /// </summary>
@@ -113,6 +102,14 @@ namespace DocLite
         }
 
         /// <summary>
+        /// Drops the persistent store managed by this SessionFactory
+        /// </summary>
+        public void DropStore()
+        {
+            PersistentDictionaryFile.DeleteFiles(Location);
+        }
+
+        /// <summary>
         /// Configurer for a <see cref="SessionFactory"/>
         /// </summary>
         public class SessionFactoryConfiguration
@@ -122,7 +119,7 @@ namespace DocLite
             protected internal SessionFactoryConfiguration(SessionFactory factory)
             {
                 _factory = factory;
-                _factory._location = Path.Combine(AssemblyPath.ExecutingAssembly, "data");
+                _factory._location = Path.Combine(ExecutingAssemblyPath, "data");
             }
 
             /// <summary>
@@ -163,6 +160,18 @@ namespace DocLite
             {
                 _factory._encryptionKey = Encoding.UTF8.GetBytes(key);
                 return this;
+            }
+
+            private static string ExecutingAssemblyPath
+            {
+                get
+                {
+                    var codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                    var uri = new UriBuilder(codeBase);
+                    var path = Uri.UnescapeDataString(uri.Path);
+                    var directory = Path.GetDirectoryName(path);
+                    return directory;
+                }
             }
         }
     }

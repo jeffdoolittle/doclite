@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.Isam.Esent.Collections.Generic;
 using Xunit;
 using Xunit.Extensions;
 
@@ -58,7 +57,7 @@ namespace DocLite.Tests.Performance
         public void Dispose()
         {
             _factory.Dispose();
-            PersistentDictionaryFile.DeleteFiles(_factory.Location);
+            _factory.DropStore();
         }
     }
 

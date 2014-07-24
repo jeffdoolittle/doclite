@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace DocLite.Store
 {
-    public class InMemoryStoreAdapter<TKey, TValue> : IStore<TKey, TValue>
+    internal class InMemoryStoreAdapter<TKey, TValue> : IStore<TKey, TValue>
         where TKey : IComparable<TKey>
     {
         private readonly Dictionary<TKey, TValue> _dictionary = new Dictionary<TKey, TValue>();

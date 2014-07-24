@@ -53,7 +53,8 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="AssemblyPath.cs" />
+    <Compile Include="ISession.cs" />
+    <Compile Include="ISessionFactory.cs" />
     <Compile Include="Serialization\ByteStreamDocumentSerializer.cs" />
     <Compile Include="Serialization\DefaultJsonSerializerSettingsConfigurer.cs" />
     <Compile Include="Serialization\GzipSerializer.cs" />

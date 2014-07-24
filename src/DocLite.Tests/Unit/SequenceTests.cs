@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Microsoft.Isam.Esent.Collections.Generic;
 using Xunit;
 
 namespace DocLite.Tests.Unit
@@ -75,7 +74,7 @@ namespace DocLite.Tests.Unit
         public void Dispose()
         {
             _factory.Dispose();
-            PersistentDictionaryFile.DeleteFiles(_factory.Location);
+            _factory.DropStore();
         }
     }
 }
