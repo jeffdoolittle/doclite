@@ -9,13 +9,13 @@ namespace DocLite
     /// <summary>
     /// A Session enables the retrieval, addition, and removal of documents from a backing store (persistent, or in memory)
     /// </summary>
-    internal class Session : ISession
+    internal class Session : ISession, IFlushable
     {
-        private const string IdPropertyName = "Id";
-
         private readonly PersistentDictionary<string, string> _store;
         private readonly IDocumentSerializer _documentSerializer;
+        private readonly DocLiteConfiguration _config;
         private readonly IdHelper _idHelper;
+        private readonly AutoIncrementingIdGenerator _autoIdGenerator;
 
         /// <summary>
         /// Constructor
@@ -26,8 +26,9 @@ namespace DocLite
         {
             _store = store;
             _documentSerializer = documentSerializer;
-            _idHelper = new IdHelper();
-            _idHelper.Initialize(IdPropertyName);
+            _config = new DocLiteConfiguration();
+            _idHelper = new IdHelper(_config);
+            _autoIdGenerator = new AutoIncrementingIdGenerator(this, _config);
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace DocLite
         /// <returns></returns>
         public IEnumerable<T> GetAll<T>()
         {
-            var key = GetDocumentName(typeof(T));
+            var key = _config.GetDocumentName(typeof(T));
             return _store
                 .Where(x => x.Key.StartsWith(key))
                 .Select(x => Deserialize<T>(x.Value));
@@ -120,7 +121,7 @@ namespace DocLite
         /// <returns></returns>
         public T First<T>()
         {
-            var name = GetDocumentName(typeof(T));
+            var name = _config.GetDocumentName(typeof(T));
             var key = _store.Keys.First(x => x.StartsWith(name));
             return Get<T>(key);
         }
@@ -132,7 +133,7 @@ namespace DocLite
         /// <returns></returns>
         public T Last<T>()
         {
-            var name = GetDocumentName(typeof(T));
+            var name = _config.GetDocumentName(typeof(T));
             var key = _store.Keys.Last(x => x.StartsWith(name));
             return Get<T>(key);
         }
@@ -144,7 +145,7 @@ namespace DocLite
         /// <returns></returns>
         public T Single<T>()
         {
-            var name = GetDocumentName(typeof(T));
+            var name = _config.GetDocumentName(typeof(T));
             var key = _store.Keys.Single(x => x.StartsWith(name));
             return Get<T>(key);
         }
@@ -156,7 +157,7 @@ namespace DocLite
         /// <returns></returns>
         public T FirstOrDefault<T>()
         {
-            var name = GetDocumentName(typeof(T));
+            var name = _config.GetDocumentName(typeof(T));
             var key = _store.Keys.FirstOrDefault(x => x.StartsWith(name));
             return Get<T>(key);
         }
@@ -168,7 +169,7 @@ namespace DocLite
         /// <returns></returns>
         public T LastOrDefault<T>()
         {
-            var name = GetDocumentName(typeof(T));
+            var name = _config.GetDocumentName(typeof(T));
             var key = _store.Keys.LastOrDefault(x => x.StartsWith(name));
             return Get<T>(key);
         }
@@ -180,7 +181,7 @@ namespace DocLite
         /// <returns></returns>
         public T SingleOrDefault<T>()
         {
-            var name = GetDocumentName(typeof(T));
+            var name = _config.GetDocumentName(typeof(T));
             var key = _store.Keys.SingleOrDefault(x => x.StartsWith(name));
             return Get<T>(key);
         }
@@ -192,7 +193,7 @@ namespace DocLite
         /// <returns></returns>
         public bool Any<T>()
         {
-            var name = GetDocumentName(typeof(T));
+            var name = _config.GetDocumentName(typeof(T));
             return _store.Keys.Any(x => x.StartsWith(name));
         }
 
@@ -203,8 +204,16 @@ namespace DocLite
         /// <returns></returns>
         public int Count<T>()
         {
-            var name = GetDocumentName(typeof(T));
+            var name = _config.GetDocumentName(typeof(T));
             return _store.Keys.Count(x => x.StartsWith(name));
+        }
+
+        /// <summary>
+        /// Flushes changes to disk
+        /// </summary>
+        public void Flush()
+        {
+            _store.Flush();
         }
 
         /// <summary>
@@ -247,16 +256,11 @@ namespace DocLite
 
         private string GetDocumentKey(Type type, object id)
         {
-            var documentName = GetDocumentName(type);
+            var documentName = _config.GetDocumentName(type);
 
             var stringId = GetStringId(id);
 
             return stringId == null ? documentName : string.Format("{0}-{1}", documentName, stringId);
-        }
-
-        private string GetDocumentName(Type type)
-        {
-            return type.Name;
         }
 
         private string GetStringId(object id)
@@ -287,31 +291,11 @@ namespace DocLite
 
         private void PerformIdGeneration(object document)
         {
+            // todo: allow configuration per document type
             _idHelper.EnsureAllGuidsIdsInObjectGraphAreNotEmpty(document);
 
-            if (_idHelper.IdType(document) == typeof (int)
-                && (int)_idHelper.GetId(document) == default(int))
-            {
-                var name = GetDocumentName(document.GetType());
-                var key = _store.Keys.LastOrDefault(x => x.StartsWith(name));
-
-                int nextId = 1;
-
-                if (key != null)
-                {
-                    var parts = key.Split('-');
-                    var idString = parts[1];
-
-                    int id;
-
-                    if (int.TryParse(idString, out id))
-                    {
-                        nextId = id + 1;
-                    }
-                }
-
-                _idHelper.SetId(document, nextId);
-            }
+            // todo: allow configuration per document type
+            _autoIdGenerator.AssignId(document);
         }
     }
 }

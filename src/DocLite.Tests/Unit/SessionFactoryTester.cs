@@ -9,41 +9,27 @@ namespace DocLite.Tests.Unit
         ISessionFactory SessionFactory { get; }
     }
 
-    public class SessionFactoryFixture : IDisposable, ISessionFactoryFixture
+    public class when_storing_documents : IDisposable
     {
         private readonly SessionFactory _factory;
 
-        public SessionFactoryFixture()
+        public when_storing_documents()
         {
             _factory = new SessionFactory(cfg => cfg
-                                                     .Compress()
-                                                     .EncryptWithKey("ABCDEFGHIJKLMNOP"));
-
-            SessionFactory = _factory;
+                                         .Compress()
+                                         .EncryptWithKey("ABCDEFGHIJKLMNOP"));
         }
-
-        public ISessionFactory SessionFactory { get; private set; }
 
         public void Dispose()
         {
             _factory.Dispose();
             _factory.DropStore();
         }
-    }
-
-    public class when_storing_documents : IUseFixture<SessionFactoryFixture>
-    {
-        private ISessionFactoryFixture _fixture;
-
-        public void SetFixture(SessionFactoryFixture fixture)
-        {
-            _fixture = fixture;
-        }
 
         [Fact]
         public void then_a_single_document_can_be_stored_and_retrieved()
         {
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 session.Add(new TestDocument
                 {
@@ -53,7 +39,7 @@ namespace DocLite.Tests.Unit
                 });
             }
 
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var match = session.Get<TestDocument>(1);
 
@@ -66,7 +52,7 @@ namespace DocLite.Tests.Unit
         [Fact]
         public void then_multiple_documents_can_be_stored_and_retrieved()
         {
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 session.Add(new TestDocument
                 {
@@ -83,7 +69,7 @@ namespace DocLite.Tests.Unit
                 });
             }
 
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var matches = session.GetAll<TestDocument>();
 
@@ -94,7 +80,7 @@ namespace DocLite.Tests.Unit
         [Fact]
         public void then_removed_documents_are_not_retrievable()
         {
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 session.Add(new TestDocument
                 {
@@ -111,13 +97,13 @@ namespace DocLite.Tests.Unit
                 });
             }
 
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var match = session.Get<TestDocument>(2);
                 session.Remove(match);
             }
 
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var matches = session.GetAll<TestDocument>();
 
@@ -130,7 +116,7 @@ namespace DocLite.Tests.Unit
         {
             Guid id;
 
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var doc = new DocumentWithGuid();
                 doc.SetName("foo bar");
@@ -139,7 +125,7 @@ namespace DocLite.Tests.Unit
                 id = doc.Id;
             }
 
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var match = session.Get<DocumentWithGuid>(id);
 
@@ -153,14 +139,14 @@ namespace DocLite.Tests.Unit
         [Fact]
         public void then_a_document_with_no_id_can_be_retrieved()
         {
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var doc = new SingletonDocument();
                 doc.SetName("foo bar");
                 session.Add(doc);
             }
 
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var match = session.Get<SingletonDocument>();
 
@@ -171,28 +157,28 @@ namespace DocLite.Tests.Unit
         [Fact]
         public void then_a_document_with_no_id_can_be_overwritten()
         {
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var doc = new SingletonDocument();
                 doc.SetName("first");
                 session.Add(doc);
             }
 
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var doc = new SingletonDocument();
                 doc.SetName("second");
                 session.Add(doc);
             }
 
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var match = session.Get<SingletonDocument>();
 
                 Assert.Equal("second", match.Name);
             }
 
-            using (var session = _fixture.SessionFactory.OpenSession())
+            using (var session = _factory.OpenSession())
             {
                 var matches = session.GetAll<SingletonDocument>();
 

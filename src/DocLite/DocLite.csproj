@@ -52,6 +52,9 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="AutoIncrementingIdGenerator.cs" />
+    <Compile Include="DocumentConfiguration.cs" />
+    <Compile Include="IFlushable.cs" />
     <Compile Include="ISession.cs" />
     <Compile Include="ISessionFactory.cs" />
     <Compile Include="Serialization\ByteStreamDocumentSerializer.cs" />

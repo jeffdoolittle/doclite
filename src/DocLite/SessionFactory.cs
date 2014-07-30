@@ -30,30 +30,28 @@ namespace DocLite
                 configure(configuration);
             }
 
-            ConfigurePersistentStore();
-            ConfigurePersistentSerializer();
+            ConfigureStore();
+            ConfigureDocumentSerializer();
         }
 
-        private void ConfigurePersistentStore()
+        private void ConfigureStore()
         {
             _store = new PersistentDictionary<string, string>(_location);
         }
 
-        private void ConfigureInMemorySerializer()
-        {
-            var serializer = new JsonSerializer();
-            _documentSerializer = new JsonDocumentSerializer(serializer);
-        }
-
-        private void ConfigurePersistentSerializer()
+        private void ConfigureDocumentSerializer()
         {
             var serializer = (ISerialize)new JsonSerializer();
 
             if (_shouldCompress)
+            {
                 serializer = new GzipSerializer(serializer);
+            }
 
             if (_encryptionKey != null)
+            {
                 serializer = new RijndaelSerializer(serializer, _encryptionKey);
+            }
 
             _documentSerializer = new ByteStreamDocumentSerializer(serializer);
         }
@@ -130,6 +128,14 @@ namespace DocLite
             public SessionFactoryConfiguration EncryptWithKey(string key)
             {
                 _factory._encryptionKey = Encoding.UTF8.GetBytes(key);
+                return this;
+            }
+
+            public SessionFactoryConfiguration Override<T>(Action<IDocLiteConfiguration> configure)
+            {
+                var configuration = new DocLiteConfiguration();
+                configure(configuration);
+
                 return this;
             }
 
